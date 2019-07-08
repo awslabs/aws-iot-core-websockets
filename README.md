@@ -1,4 +1,4 @@
-## AWS Iot Core Websockets
+## AWS IoT Core Websockets
 
 A library that handles connecting third-party websockets based MQTT clients to AWS IoT Core.
 
