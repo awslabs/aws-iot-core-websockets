@@ -1,0 +1,5 @@
+jdk:
+  - openjdk8
+install:
+   - echo "Running a custom install command"
+   - cd java && ./gradlew clean install -xtest
