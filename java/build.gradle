@@ -25,6 +25,9 @@ def jodaTimeVersion = '2.10.3'
 // See - https://github.com/eclipse/paho.mqtt.java/issues/345
 def pahoVersion = '1.1.0'
 
+group = 'com.awslabs.aws.iot.websockets.Example'
+version = '0.4.2'
+
 description = """"""
 
 task sourcesJar(type: Jar, dependsOn: classes) {
