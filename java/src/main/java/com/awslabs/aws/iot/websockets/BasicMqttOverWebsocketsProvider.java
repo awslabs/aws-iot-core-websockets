@@ -1,8 +1,6 @@
 package com.awslabs.aws.iot.websockets;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -42,10 +40,32 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
     }
 
     @Override
+    public MqttAsyncClient getMqttAsyncClient(String clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+        // Use default values for region and endpoint address
+        return getMqttAsyncClient(clientId, Optional.empty(), Optional.empty());
+    }
+
+    @Override
+    public MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
+        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress);
+
+        MemoryPersistence persistence = new MemoryPersistence();
+
+        return new MqttAsyncClient(mqttOverWebsocketsUri, clientId, persistence);
+    }
+
+    @Override
     public void connect(MqttClient mqttClient) throws MqttException {
         MqttConnectOptions connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
         mqttClient.connect(connOpts);
+    }
+
+    @Override
+    public IMqttToken connect(MqttAsyncClient mqttAsyncClient) throws MqttException {
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+        connOpts.setCleanSession(true);
+        return mqttAsyncClient.connect(connOpts);
     }
 
     private String getDateStamp(DateTime dateTime) {
