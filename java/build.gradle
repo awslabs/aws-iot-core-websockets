@@ -7,7 +7,6 @@ def gradleDependencyVersion = '5.4.1'
 
 wrapper {
     gradleVersion = gradleDependencyVersion
-    distributionType = Wrapper.DistributionType.ALL
 }
 
 apply plugin: 'java'
@@ -26,9 +25,6 @@ def awaitilityVersion = '3.1.6'
 // NOTE: Do not upgrade to 1.1.1, 1.2.0, or 1.2.1 or you will get "Incorrect upgrade" errors
 // See - https://github.com/eclipse/paho.mqtt.java/issues/345
 def pahoVersion = '1.1.0'
-
-group = 'com.awslabs.aws.iot.websockets.Example'
-version = '0.3.4'
 
 description = """"""
 
