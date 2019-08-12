@@ -6,6 +6,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
@@ -13,6 +15,11 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.providers.AwsRegionProviderChain;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
 import software.amazon.awssdk.services.iot.IotClient;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
+import software.amazon.awssdk.services.sts.model.AssumeRoleResponse;
+import software.amazon.awssdk.services.sts.model.Credentials;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -24,6 +31,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvider {
+    private static final String ARN_AWS_IAM = "arn:aws:iam::";
+    private static final Logger log = LoggerFactory.getLogger(BasicMqttOverWebsocketsProvider.class);
+
     @Override
     public MqttClient getMqttClient(String clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         // Use default values for region and endpoint address
@@ -32,7 +42,25 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
     @Override
     public MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
-        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress);
+        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, Optional.empty(), Optional.empty());
+
+        MemoryPersistence persistence = new MemoryPersistence();
+
+        return new MqttClient(mqttOverWebsocketsUri, clientId, persistence);
+    }
+
+    @Override
+    public MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, optionalRoleToAssume, Optional.empty());
+
+        MemoryPersistence persistence = new MemoryPersistence();
+
+        return new MqttClient(mqttOverWebsocketsUri, clientId, persistence);
+    }
+
+    @Override
+    public MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, optionalRoleToAssume, optionalScopeDownPolicy);
 
         MemoryPersistence persistence = new MemoryPersistence();
 
@@ -47,7 +75,25 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
     @Override
     public MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
-        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress);
+        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, Optional.empty(), Optional.empty());
+
+        MemoryPersistence persistence = new MemoryPersistence();
+
+        return new MqttAsyncClient(mqttOverWebsocketsUri, clientId, persistence);
+    }
+
+    @Override
+    public MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
+        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, optionalRoleToAssume, Optional.empty());
+
+        MemoryPersistence persistence = new MemoryPersistence();
+
+        return new MqttAsyncClient(mqttOverWebsocketsUri, clientId, persistence);
+    }
+
+    @Override
+    public MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
+        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, optionalRoleToAssume, optionalScopeDownPolicy);
 
         MemoryPersistence persistence = new MemoryPersistence();
 
@@ -80,7 +126,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
     // Derived from: http://docs.aws.amazon.com/iot/latest/developerguide/iot-dg.pdf
     @Override
-    public String getMqttOverWebsocketsUri(Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+    public String getMqttOverWebsocketsUri(Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
         long time = System.currentTimeMillis();
         DateTime dateTime = new DateTime(time);
         String dateStamp = getDateStamp(dateTime);
@@ -90,13 +136,50 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         String regionString = region.toString();
         String clientEndpoint = optionalEndpointAddress.orElseGet(this::getDefaultEndpointAddress);
 
-        AwsCredentials awsCredentials = DefaultCredentialsProvider.create().resolveCredentials();
-        String awsAccessKeyId = awsCredentials.accessKeyId();
-        String awsSecretAccessKey = awsCredentials.secretAccessKey();
+        AwsCredentials awsCredentials;
+        String awsAccessKeyId;
+        String awsSecretAccessKey;
         Optional<String> optionalSessionToken = Optional.empty();
 
-        if (awsCredentials instanceof AwsSessionCredentials) {
-            optionalSessionToken = Optional.of(((AwsSessionCredentials) awsCredentials).sessionToken());
+        if (!optionalRoleToAssume.isPresent()) {
+            // Use the current role
+            awsCredentials = DefaultCredentialsProvider.create().resolveCredentials();
+            awsAccessKeyId = awsCredentials.accessKeyId();
+            awsSecretAccessKey = awsCredentials.secretAccessKey();
+
+            if (awsCredentials instanceof AwsSessionCredentials) {
+                optionalSessionToken = Optional.of(((AwsSessionCredentials) awsCredentials).sessionToken());
+            }
+        } else {
+            // Assume a new role
+            StsClient stsClient = StsClient.create();
+            String roleToAssume = optionalRoleToAssume.get();
+
+            String roleArn = roleToAssume;
+
+            if (!roleArn.startsWith(ARN_AWS_IAM)) {
+                // The role coming from the environment will be the full ARN, if this is just the role name add the proper prefix
+                String accountId = getAccountId(stsClient);
+
+                roleArn = ARN_AWS_IAM + accountId + ":role/" + roleToAssume;
+            }
+
+            log.debug("Attempting to assume role: " + roleArn);
+
+            AssumeRoleRequest.Builder assumeRoleRequestBuilder = AssumeRoleRequest.builder()
+                    .roleArn(roleArn)
+                    .roleSessionName("aws-iot-proxy");
+
+            // Add the scope down policy if there is one
+            optionalScopeDownPolicy.ifPresent(assumeRoleRequestBuilder::policy);
+
+            AssumeRoleRequest assumeRoleRequest = assumeRoleRequestBuilder.build();
+            AssumeRoleResponse assumeRoleResult = stsClient.assumeRole(assumeRoleRequest);
+
+            Credentials credentials = assumeRoleResult.credentials();
+            awsSecretAccessKey = credentials.secretAccessKey();
+            awsAccessKeyId = credentials.accessKeyId();
+            optionalSessionToken = Optional.of(credentials.sessionToken());
         }
 
         String algorithm = "AWS4-HMAC-SHA256";
@@ -125,6 +208,10 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         }
 
         return requestUrl;
+    }
+
+    public String getAccountId(StsClient stsClient) {
+        return stsClient.getCallerIdentity(GetCallerIdentityRequest.builder().build()).account();
     }
 
     private String getDefaultEndpointAddress() {

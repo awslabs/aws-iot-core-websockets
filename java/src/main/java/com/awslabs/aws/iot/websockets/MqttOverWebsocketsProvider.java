@@ -16,14 +16,22 @@ public interface MqttOverWebsocketsProvider {
 
     MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
 
+    MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
+
+    MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
+
     MqttAsyncClient getMqttAsyncClient(String clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
 
     MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
+
+    MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
+
+    MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
 
     void connect(MqttClient mqttClient) throws MqttException;
 
     IMqttToken connect(MqttAsyncClient mqttAsyncClient) throws MqttException;
 
     // Derived from: http://docs.aws.amazon.com/iot/latest/developerguide/iot-dg.pdf
-    String getMqttOverWebsocketsUri(Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
+    String getMqttOverWebsocketsUri(Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
 }
