@@ -1,9 +1,6 @@
 package com.awslabs.aws.iot.websockets;
 
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.*;
 import software.amazon.awssdk.regions.Region;
 
 import java.io.UnsupportedEncodingException;
@@ -31,6 +28,8 @@ public interface MqttOverWebsocketsProvider {
     void connect(MqttClient mqttClient) throws MqttException;
 
     IMqttToken connect(MqttAsyncClient mqttAsyncClient) throws MqttException;
+
+    IMqttToken connect(MqttAsyncClient mqttAsyncClient, Object userContext, IMqttActionListener callback) throws MqttException;
 
     // Derived from: http://docs.aws.amazon.com/iot/latest/developerguide/iot-dg.pdf
     String getMqttOverWebsocketsUri(Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;

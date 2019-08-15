@@ -114,6 +114,13 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         return mqttAsyncClient.connect(connOpts);
     }
 
+    @Override
+    public IMqttToken connect(MqttAsyncClient mqttAsyncClient, Object userContext, IMqttActionListener callback) throws MqttException {
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+        connOpts.setCleanSession(true);
+        return mqttAsyncClient.connect(connOpts, userContext, callback);
+    }
+
     private String getDateStamp(DateTime dateTime) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyyMMdd");
         return dateTimeFormatter.print(dateTime.withZone(DateTimeZone.UTC));
