@@ -175,7 +175,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
             AssumeRoleRequest.Builder assumeRoleRequestBuilder = AssumeRoleRequest.builder()
                     .roleArn(roleArn)
-                    .roleSessionName("aws-iot-proxy");
+                    .roleSessionName("aws-iot-core-websockets-java");
 
             // Add the scope down policy if there is one
             optionalScopeDownPolicy.ifPresent(assumeRoleRequestBuilder::policy);
