@@ -18,7 +18,7 @@ apply plugin: 'idea'
 mainClassName = 'not-applicable'
 
 // Specify all of our dependency versions
-def awsSdk2Version = '2.7.21'
+def awsSdk2Version = '2.7.27'
 def jodaTimeVersion = '2.10.3'
 
 // NOTE: Do not upgrade to 1.1.1, 1.2.0, or 1.2.1 or you will get "Incorrect upgrade" errors
