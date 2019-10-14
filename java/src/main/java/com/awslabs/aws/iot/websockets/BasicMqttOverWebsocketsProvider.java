@@ -15,6 +15,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.providers.AwsRegionProviderChain;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
 import software.amazon.awssdk.services.iot.IotClient;
+import software.amazon.awssdk.services.iot.model.DescribeEndpointRequest;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
 import software.amazon.awssdk.services.sts.model.AssumeRoleResponse;
@@ -223,7 +224,10 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
     private String getDefaultEndpointAddress() {
         IotClient iotClient = IotClient.create();
-        return iotClient.describeEndpoint().endpointAddress();
+        DescribeEndpointRequest describeEndpointRequest = DescribeEndpointRequest.builder()
+                .endpointType("iot:Data-ATS")
+                .build();
+        return iotClient.describeEndpoint(describeEndpointRequest).endpointAddress();
     }
 
     private Region getDefaultRegionString() {
