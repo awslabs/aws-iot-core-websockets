@@ -6,6 +6,30 @@
 
 A library that handles connecting third-party websockets based MQTT clients to AWS IoT Core.
 
+## How do I include it in my Gradle project?
+
+1. Add the jitpack repo to the repositories section
+
+    ```
+    maven { url 'https://jitpack.io' }
+    ```
+
+2. Add the dependency version [(replace x.y.z with the appropriate version from the JitPack site)](https://jitpack.io/#awslabs/aws-iot-core-websockets)
+
+    ```
+    def awsIotCoreWebsocketsVersion = 'x.y.z'
+    ```
+
+3. Add the dependency to the dependencies section
+
+    ```
+    compile "com.github.awslabs:aws-iot-core-websockets:$awsIotCoreWebsocketsVersion"
+    ```
+
+## How do I use it?
+
+Check out an [example in the IoT reference architectures repo](https://github.com/aws-samples/iot-reference-architectures/tree/master/mqtt-over-websockets-jitpack/java).
+
 ## License
 
 This library is licensed under the Apache 2.0 License. 
