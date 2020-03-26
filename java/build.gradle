@@ -1,19 +1,20 @@
 plugins {
+    id 'java'
+    id 'java-library'
+    id 'application'
+    id 'idea'
+    id 'maven'
+
     // Adds dependencyUpdates task
     id 'com.github.ben-manes.versions' version '0.28.0'
 }
 
-def gradleDependencyVersion = '6.0'
+def gradleDependencyVersion = '6.3'
 
 wrapper {
     gradleVersion = gradleDependencyVersion
     distributionType = Wrapper.DistributionType.ALL
 }
-
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'application'
-apply plugin: 'idea'
 
 mainClassName = 'not-applicable'
 
@@ -28,7 +29,6 @@ def pahoVersion = '1.2.2'
 def junitVersion = '4.13'
 
 group = 'com.awslabs.aws.iot.websockets.Example'
-version = '0.4.2'
 
 description = """"""
 
@@ -57,17 +57,15 @@ tasks.withType(JavaCompile) {
 repositories {
     mavenCentral()
 
-    maven {
-        url "https://repo.gradle.org/gradle/libs-releases-local/"
-    }
+    maven { url "https://repo.gradle.org/gradle/libs-releases-local/" }
 }
 
 dependencies {
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$pahoVersion"
-    compile "joda-time:joda-time:$jodaTimeVersion"
+    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$pahoVersion"
+    implementation "joda-time:joda-time:$jodaTimeVersion"
 
-    compile "software.amazon.awssdk:iot:$awsSdk2Version"
-    compile "software.amazon.awssdk:sts:$awsSdk2Version"
+    implementation "software.amazon.awssdk:iot:$awsSdk2Version"
+    implementation "software.amazon.awssdk:sts:$awsSdk2Version"
 
     testCompile "junit:junit:$junitVersion"
 }
