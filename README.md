@@ -6,6 +6,18 @@
 
 A library that handles connecting third-party websockets based MQTT clients to AWS IoT Core.
 
+## Why MQTT over WebSockets?
+
+MQTT over WebSockets allows you to use SigV4 credentials. This means that you can use this library to connect to AWS IoT Core,
+without certificates, assuming that you have a way to get SigV4 credentials. For normal IAM users this can be from
+`.aws/config`'s access key and secret key ID, or it could be from the EC2 instance meta-data service so you can use an
+instance profile, or it could be from the [AWS Secure Token Service](https://docs.aws.amazon.com/STS/latest/APIReference/Welcome.html)
+so you can ship temporary credentials to other systems over any secure delivery mechanism that you have set up already.
+
+## Can I use SigV4 credentials with normal MQTT?
+
+[Not as of 2020-03-26 according to the AWS IoT documentation](https://docs.aws.amazon.com/iot/latest/developerguide/protocols.html).
+
 ## How do I include it in my Gradle project?
 
 1. Add the jitpack repo to the repositories section
