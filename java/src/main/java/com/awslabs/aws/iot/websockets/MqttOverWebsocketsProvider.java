@@ -1,5 +1,9 @@
 package com.awslabs.aws.iot.websockets;
 
+import com.awslabs.aws.iot.websockets.data.ImmutableClientId;
+import com.awslabs.aws.iot.websockets.data.ImmutableEndpointAddress;
+import com.awslabs.aws.iot.websockets.data.ImmutableRoleToAssume;
+import com.awslabs.aws.iot.websockets.data.ImmutableScopeDownPolicy;
 import org.eclipse.paho.client.mqttv3.*;
 import software.amazon.awssdk.regions.Region;
 
@@ -9,21 +13,21 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 public interface MqttOverWebsocketsProvider {
-    MqttClient getMqttClient(String clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
+    MqttClient getMqttClient(ImmutableClientId clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
 
-    MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
+    MqttClient getMqttClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
 
-    MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
+    MqttClient getMqttClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
 
-    MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
+    MqttClient getMqttClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume, Optional<ImmutableScopeDownPolicy> optionalScopeDownPolicy) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
 
-    MqttAsyncClient getMqttAsyncClient(String clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
+    MqttAsyncClient getMqttAsyncClient(ImmutableClientId clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
 
-    MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
+    MqttAsyncClient getMqttAsyncClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
 
-    MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
+    MqttAsyncClient getMqttAsyncClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
 
-    MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
+    MqttAsyncClient getMqttAsyncClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume, Optional<ImmutableScopeDownPolicy> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
 
     void connect(MqttClient mqttClient) throws MqttException;
 
@@ -32,5 +36,5 @@ public interface MqttOverWebsocketsProvider {
     IMqttToken connect(MqttAsyncClient mqttAsyncClient, Object userContext, IMqttActionListener callback) throws MqttException;
 
     // Derived from: http://docs.aws.amazon.com/iot/latest/developerguide/iot-dg.pdf
-    String getMqttOverWebsocketsUri(Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
+    String getMqttOverWebsocketsUri(Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume, Optional<ImmutableScopeDownPolicy> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
 }

@@ -1,5 +1,6 @@
 package com.awslabs.aws.iot.websockets;
 
+import com.awslabs.aws.iot.websockets.data.*;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.joda.time.DateTime;
@@ -36,69 +37,69 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
     private static final Logger log = LoggerFactory.getLogger(BasicMqttOverWebsocketsProvider.class);
 
     @Override
-    public MqttClient getMqttClient(String clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+    public MqttClient getMqttClient(ImmutableClientId clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         // Use default values for region and endpoint address
         return getMqttClient(clientId, Optional.empty(), Optional.empty());
     }
 
     @Override
-    public MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
+    public MqttClient getMqttClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
         String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, Optional.empty(), Optional.empty());
 
         MemoryPersistence persistence = new MemoryPersistence();
 
-        return new MqttClient(mqttOverWebsocketsUri, clientId, persistence);
+        return new MqttClient(mqttOverWebsocketsUri, clientId.getClientId(), persistence);
     }
 
     @Override
-    public MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+    public MqttClient getMqttClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
         String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, optionalRoleToAssume, Optional.empty());
 
         MemoryPersistence persistence = new MemoryPersistence();
 
-        return new MqttClient(mqttOverWebsocketsUri, clientId, persistence);
+        return new MqttClient(mqttOverWebsocketsUri, clientId.getClientId(), persistence);
     }
 
     @Override
-    public MqttClient getMqttClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+    public MqttClient getMqttClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume, Optional<ImmutableScopeDownPolicy> optionalScopeDownPolicy) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
         String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, optionalRoleToAssume, optionalScopeDownPolicy);
 
         MemoryPersistence persistence = new MemoryPersistence();
 
-        return new MqttClient(mqttOverWebsocketsUri, clientId, persistence);
+        return new MqttClient(mqttOverWebsocketsUri, clientId.getClientId(), persistence);
     }
 
     @Override
-    public MqttAsyncClient getMqttAsyncClient(String clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+    public MqttAsyncClient getMqttAsyncClient(ImmutableClientId clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
         // Use default values for region and endpoint address
         return getMqttAsyncClient(clientId, Optional.empty(), Optional.empty());
     }
 
     @Override
-    public MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
+    public MqttAsyncClient getMqttAsyncClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
         String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, Optional.empty(), Optional.empty());
 
         MemoryPersistence persistence = new MemoryPersistence();
 
-        return new MqttAsyncClient(mqttOverWebsocketsUri, clientId, persistence);
+        return new MqttAsyncClient(mqttOverWebsocketsUri, clientId.getClientId(), persistence);
     }
 
     @Override
-    public MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
+    public MqttAsyncClient getMqttAsyncClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
         String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, optionalRoleToAssume, Optional.empty());
 
         MemoryPersistence persistence = new MemoryPersistence();
 
-        return new MqttAsyncClient(mqttOverWebsocketsUri, clientId, persistence);
+        return new MqttAsyncClient(mqttOverWebsocketsUri, clientId.getClientId(), persistence);
     }
 
     @Override
-    public MqttAsyncClient getMqttAsyncClient(String clientId, Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
+    public MqttAsyncClient getMqttAsyncClient(ImmutableClientId clientId, Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume, Optional<ImmutableScopeDownPolicy> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
         String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, optionalRoleToAssume, optionalScopeDownPolicy);
 
         MemoryPersistence persistence = new MemoryPersistence();
 
-        return new MqttAsyncClient(mqttOverWebsocketsUri, clientId, persistence);
+        return new MqttAsyncClient(mqttOverWebsocketsUri, clientId.getClientId(), persistence);
     }
 
     @Override
@@ -134,7 +135,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
     // Derived from: http://docs.aws.amazon.com/iot/latest/developerguide/iot-dg.pdf
     @Override
-    public String getMqttOverWebsocketsUri(Optional<Region> optionalRegion, Optional<String> optionalEndpointAddress, Optional<String> optionalRoleToAssume, Optional<String> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+    public String getMqttOverWebsocketsUri(Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume, Optional<ImmutableScopeDownPolicy> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
         long time = System.currentTimeMillis();
         DateTime dateTime = new DateTime(time);
         String dateStamp = getDateStamp(dateTime);
@@ -142,7 +143,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         String service = "iotdata";
         Region region = optionalRegion.orElseGet(this::getDefaultRegionString);
         String regionString = region.toString();
-        String clientEndpoint = optionalEndpointAddress.orElseGet(this::getDefaultEndpointAddress);
+        String clientEndpoint = optionalEndpointAddress.map(EndpointAddress::getEndpointAddress).orElseGet(this::getDefaultEndpointAddress);
 
         AwsCredentials awsCredentials;
         String awsAccessKeyId;
@@ -161,7 +162,9 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         } else {
             // Assume a new role
             StsClient stsClient = StsClient.create();
-            String roleToAssume = optionalRoleToAssume.get();
+            String roleToAssume = optionalRoleToAssume
+                    .map(RoleToAssume::getRoleToAssume)
+                    .orElseThrow(() -> new RuntimeException("Role to assume is missing, this is a bug"));
 
             String roleArn = roleToAssume;
 
@@ -179,7 +182,9 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
                     .roleSessionName("aws-iot-core-websockets-java");
 
             // Add the scope down policy if there is one
-            optionalScopeDownPolicy.ifPresent(assumeRoleRequestBuilder::policy);
+            optionalScopeDownPolicy
+                    .map(ScopeDownPolicy::getScopeDownPolicy)
+                    .ifPresent(assumeRoleRequestBuilder::policy);
 
             AssumeRoleRequest assumeRoleRequest = assumeRoleRequestBuilder.build();
             AssumeRoleResponse assumeRoleResult = stsClient.assumeRole(assumeRoleRequest);
