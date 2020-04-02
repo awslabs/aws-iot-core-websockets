@@ -1,9 +1,6 @@
 package com.awslabs.aws.iot.websockets;
 
-import com.awslabs.aws.iot.websockets.data.ImmutableClientId;
-import com.awslabs.aws.iot.websockets.data.ImmutableEndpointAddress;
-import com.awslabs.aws.iot.websockets.data.ImmutableRoleToAssume;
-import com.awslabs.aws.iot.websockets.data.ImmutableScopeDownPolicy;
+import com.awslabs.aws.iot.websockets.data.*;
 import org.eclipse.paho.client.mqttv3.*;
 import software.amazon.awssdk.regions.Region;
 
@@ -31,9 +28,11 @@ public interface MqttOverWebsocketsProvider {
 
     void connect(MqttClient mqttClient) throws MqttException;
 
+    void connect(MqttClient mqttClient, ImmutableUsernamePassword usernamePassword) throws MqttException;
+
     IMqttToken connect(MqttAsyncClient mqttAsyncClient) throws MqttException;
 
-    IMqttToken connect(MqttAsyncClient mqttAsyncClient, Object userContext, IMqttActionListener callback) throws MqttException;
+    IMqttToken connect(MqttAsyncClient mqttAsyncClient, ImmutableUsernamePassword usernamePassword, Object userContext, IMqttActionListener callback) throws MqttException;
 
     // Derived from: http://docs.aws.amazon.com/iot/latest/developerguide/iot-dg.pdf
     String getMqttOverWebsocketsUri(Optional<Region> optionalRegion, Optional<ImmutableEndpointAddress> optionalEndpointAddress, Optional<ImmutableRoleToAssume> optionalRoleToAssume, Optional<ImmutableScopeDownPolicy> optionalScopeDownPolicy) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;

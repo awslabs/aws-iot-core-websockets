@@ -110,6 +110,19 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
     }
 
     @Override
+    public void connect(MqttClient mqttClient, ImmutableUsernamePassword usernamePassword) throws MqttException {
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+        connOpts.setCleanSession(true);
+        setUsernamePassword(usernamePassword, connOpts);
+        mqttClient.connect(connOpts);
+    }
+
+    private void setUsernamePassword(ImmutableUsernamePassword usernamePassword, MqttConnectOptions connOpts) {
+        usernamePassword.getUsername().ifPresent(connOpts::setUserName);
+        usernamePassword.getPassword().ifPresent(connOpts::setPassword);
+    }
+
+    @Override
     public IMqttToken connect(MqttAsyncClient mqttAsyncClient) throws MqttException {
         MqttConnectOptions connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
@@ -117,9 +130,10 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
     }
 
     @Override
-    public IMqttToken connect(MqttAsyncClient mqttAsyncClient, Object userContext, IMqttActionListener callback) throws MqttException {
+    public IMqttToken connect(MqttAsyncClient mqttAsyncClient, ImmutableUsernamePassword usernamePassword, Object userContext, IMqttActionListener callback) throws MqttException {
         MqttConnectOptions connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
+        setUsernamePassword(usernamePassword, connOpts);
         return mqttAsyncClient.connect(connOpts, userContext, callback);
     }
 
