@@ -24,7 +24,7 @@ def jodaTimeVersion = '2.10.5'
 def immutablesValueVersion = '2.8.3'
 
 // NOTE: Do not upgrade to 1.2.3 or you will get null pointer exceptions
-def pahoVersion = '1.2.2'
+def pahoVersion = '1.2.3'
 
 def junitVersion = '4.13'
 
