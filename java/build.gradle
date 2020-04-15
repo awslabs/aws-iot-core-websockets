@@ -25,7 +25,7 @@ def immutablesValueVersion = '2.8.3'
 
 // NOTE: Do not upgrade to 1.1.1, 1.2.0, or 1.2.1 or you will get "Incorrect upgrade" errors
 // See - https://github.com/eclipse/paho.mqtt.java/issues/345
-def pahoVersion = '1.2.2'
+def pahoVersion = '1.2.3'
 
 def junitVersion = '4.13'
 
