@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
@@ -35,6 +36,10 @@ import java.util.Optional;
 public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvider {
     private static final String ARN_AWS_IAM = "arn:aws:iam::";
     private static final Logger log = LoggerFactory.getLogger(BasicMqttOverWebsocketsProvider.class);
+
+    @Inject
+    public BasicMqttOverWebsocketsProvider() {
+    }
 
     @Override
     public MqttClient getMqttClient(ImmutableClientId clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
