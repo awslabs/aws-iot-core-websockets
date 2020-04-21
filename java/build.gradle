@@ -27,6 +27,8 @@ def immutablesValueVersion = '2.8.3'
 def pahoVersion = '1.2.2'
 
 def junitVersion = '4.13'
+def guavaVersion = '29.0-jre'
+def vavrVersion = '0.10.2'
 
 group = 'com.awslabs.aws.iot.websockets.Example'
 
@@ -75,7 +77,9 @@ dependencies {
 
     api "javax.inject:javax.inject:1"
 
-    testCompile "junit:junit:$junitVersion"
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "com.google.guava:guava:$guavaVersion"
+    testImplementation "io.vavr:vavr:$vavrVersion"
 }
 
 // From: https://gist.github.com/matthiasbalke/3c9ecccbea1d460ee4c3fbc5843ede4a
