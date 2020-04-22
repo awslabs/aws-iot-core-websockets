@@ -42,6 +42,17 @@ so you can ship temporary credentials to other systems over any secure delivery 
 
 Check out an [example in the IoT reference architectures repo](https://github.com/aws-samples/iot-reference-architectures/tree/master/mqtt-over-websockets-jitpack/java).
 
+## Is there a really simple example snippet to get me started?
+
+Of course, all you have to do after including the library to get an MQTT client with your IAM credentials is this:
+
+```
+        mqttOverWebsocketsProvider = new BasicMqttOverWebsocketsProvider();
+        String uuid = UUID.randomUUID().toString();
+        clientId = ImmutableClientId.builder().clientId(uuid).build();
+        mqttClient = mqttOverWebsocketsProvider.getMqttClient(clientId);
+```
+
 ## License
 
 This library is licensed under the Apache 2.0 License. 
