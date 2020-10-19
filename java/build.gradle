@@ -27,7 +27,7 @@ def immutablesValueVersion = '2.8.8'
 def pahoVersion = '1.2.5'
 
 def junitVersion = '4.13.1'
-def guavaVersion = '29.0-jre'
+def guavaVersion = '30.0-jre'
 def vavrVersion = '0.10.3'
 
 group = 'com.awslabs.aws.iot.websockets.Example'
