@@ -13,6 +13,7 @@ import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.providers.AwsRegionProviderChain;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
@@ -35,6 +36,10 @@ import java.util.UUID;
 public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvider {
     private static final String ARN_AWS_IAM = "arn:aws:iam::";
     private static final Logger log = LoggerFactory.getLogger(BasicMqttOverWebsocketsProvider.class);
+
+    private static final ApacheHttpClient.Builder apacheClientBuilder = ApacheHttpClient.builder();
+    private static final IotClient iotClient = IotClient.builder().httpClientBuilder(apacheClientBuilder).build();
+    private static final StsClient stsClient = StsClient.builder().httpClientBuilder(apacheClientBuilder).build();
 
     // This is not private so that a test can override it if necessary
     AwsCredentialsProvider credentialsProvider = DefaultCredentialsProvider.create();
@@ -172,8 +177,6 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         Optional<String> optionalSessionToken = Optional.empty();
         Optional<String> optionalScopeDownJson = optionalScopeDownPolicy.map(ScopeDownPolicy::toString);
 
-        StsClient stsClient = StsClient.create();
-
         if (!optionalRoleToAssume.getRoleToAssume().isPresent()) {
             if (optionalScopeDownJson.isPresent()) {
                 // There is a scope down policy, get a federation token with it
@@ -267,7 +270,6 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
     }
 
     private String getDefaultEndpointAddress() {
-        IotClient iotClient = IotClient.create();
         DescribeEndpointRequest describeEndpointRequest = DescribeEndpointRequest.builder()
                 .endpointType("iot:Data-ATS")
                 .build();

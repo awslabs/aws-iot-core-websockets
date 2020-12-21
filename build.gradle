@@ -74,6 +74,7 @@ dependencies {
 
     implementation "software.amazon.awssdk:iot:$awsSdk2Version"
     implementation "software.amazon.awssdk:sts:$awsSdk2Version"
+    implementation "software.amazon.awssdk:apache-client:$awsSdk2Version"
 
     api "javax.inject:javax.inject:1"
 
