@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.awslabs.aws.iot.websockets"},{"l":"com.awslabs.aws.iot.websockets.data"}]

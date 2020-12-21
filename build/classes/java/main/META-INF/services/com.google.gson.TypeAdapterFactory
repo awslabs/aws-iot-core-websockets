@@ -1,0 +1,4 @@
+com.awslabs.aws.iot.websockets.data.GsonAdaptersRoleToAssume
+com.awslabs.aws.iot.websockets.data.GsonAdaptersClientId
+com.awslabs.aws.iot.websockets.data.GsonAdaptersUsernamePassword
+com.awslabs.aws.iot.websockets.data.GsonAdaptersEndpointAddress
