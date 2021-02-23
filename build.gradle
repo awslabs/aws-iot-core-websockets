@@ -81,6 +81,9 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     testImplementation "com.google.guava:guava:$guavaVersion"
     testImplementation "io.vavr:vavr:$vavrVersion"
+
+    // To force dependabot to update the Gradle wrapper dependency
+    testImplementation "org.gradle:gradle-tooling-api:$gradleDependencyVersion"
 }
 
 // From: https://gist.github.com/matthiasbalke/3c9ecccbea1d460ee4c3fbc5843ede4a
