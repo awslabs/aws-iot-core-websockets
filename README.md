@@ -16,7 +16,7 @@ so you can ship temporary credentials to other systems over any secure delivery 
 
 ## Can I use SigV4 credentials with normal MQTT?
 
-[Not as of 2020-03-26 according to the AWS IoT documentation](https://docs.aws.amazon.com/iot/latest/developerguide/protocols.html).
+[Not as of 2021-05-04 according to the AWS IoT documentation](https://docs.aws.amazon.com/iot/latest/developerguide/protocols.html).
 
 ## How do I include it in my Gradle project?
 
