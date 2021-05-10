@@ -39,7 +39,7 @@ java {
 }
 
 // Specify all of our dependency versions
-val awsSdk2Version = "2.16.54"
+val awsSdk2Version = "2.16.59"
 val jodaTimeVersion = "2.10.10"
 val immutablesValueVersion = "2.8.9-ea-1"
 
