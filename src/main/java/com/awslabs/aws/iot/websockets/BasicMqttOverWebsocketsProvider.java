@@ -18,8 +18,10 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.providers.AwsRegionProviderChain;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
 import software.amazon.awssdk.services.iot.IotClient;
+import software.amazon.awssdk.services.iot.IotClientBuilder;
 import software.amazon.awssdk.services.iot.model.DescribeEndpointRequest;
 import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.StsClientBuilder;
 import software.amazon.awssdk.services.sts.model.*;
 
 import javax.crypto.Mac;
@@ -38,8 +40,6 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
     private static final Logger log = LoggerFactory.getLogger(BasicMqttOverWebsocketsProvider.class);
 
     private static final ApacheHttpClient.Builder apacheClientBuilder = ApacheHttpClient.builder();
-    private static final IotClient iotClient = IotClient.builder().httpClientBuilder(apacheClientBuilder).build();
-    private static final StsClient stsClient = StsClient.builder().httpClientBuilder(apacheClientBuilder).build();
 
     // This is not private so that a test can override it if necessary
     AwsCredentialsProvider credentialsProvider = DefaultCredentialsProvider.create();
@@ -175,13 +175,15 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         String service = "iotdata";
         Region region = optionalRegion.orElseGet(this::getDefaultRegionString);
         String regionString = region.toString();
-        String clientEndpoint = optionalEndpointAddress.getEndpointAddress().orElseGet(this::getDefaultEndpointAddress);
+        String clientEndpoint = optionalEndpointAddress.getEndpointAddress().orElseGet(() -> getEndpointAddressForRegion(optionalRegion));
 
         AwsCredentials awsCredentials;
         String awsAccessKeyId;
         String awsSecretAccessKey;
         Optional<String> optionalSessionToken = Optional.empty();
         Optional<String> optionalScopeDownJson = optionalScopeDownPolicy.map(ScopeDownPolicy::toString);
+
+        StsClient stsClient = getStsClient(optionalRegion);
 
         if (!optionalRoleToAssume.getRoleToAssume().isPresent()) {
             if (optionalScopeDownJson.isPresent()) {
@@ -271,15 +273,32 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         return requestUrl;
     }
 
+    private StsClient getStsClient(Optional<Region> optionalRegion) {
+        StsClientBuilder builder = StsClient.builder()
+                .httpClientBuilder(apacheClientBuilder);
+        optionalRegion.ifPresent(builder::region);
+
+        return builder.build();
+    }
+
     public String getAccountId(StsClient stsClient) {
         return stsClient.getCallerIdentity(GetCallerIdentityRequest.builder().build()).account();
     }
 
-    private String getDefaultEndpointAddress() {
+    private String getEndpointAddressForRegion(Optional<Region> optionalRegion) {
         DescribeEndpointRequest describeEndpointRequest = DescribeEndpointRequest.builder()
                 .endpointType("iot:Data-ATS")
                 .build();
-        return iotClient.describeEndpoint(describeEndpointRequest).endpointAddress();
+        return getIotClient(optionalRegion).describeEndpoint(describeEndpointRequest).endpointAddress();
+    }
+
+    private IotClient getIotClient(Optional<Region> optionalRegion) {
+        IotClientBuilder builder = IotClient.builder()
+                .httpClientBuilder(apacheClientBuilder);
+        optionalRegion.ifPresent(builder::region);
+
+        return builder.build();
+
     }
 
     private Region getDefaultRegionString() {
