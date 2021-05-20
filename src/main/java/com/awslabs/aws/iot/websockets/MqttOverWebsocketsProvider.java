@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface MqttOverWebsocketsProvider {
     MqttClient getMqttClient(ImmutableClientId clientId) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
 
+    MqttClient getMqttClient(ImmutableClientId clientId, Region region) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException;
+
     MqttClient getMqttClient(ImmutableClientId clientId, Optional<Region> optionalRegion, ImmutableEndpointAddress optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException;
 
     MqttClient getMqttClient(ImmutableClientId clientId, Optional<Region> optionalRegion, ImmutableEndpointAddress optionalEndpointAddress, ImmutableRoleToAssume optionalRoleToAssume) throws MqttException, UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;

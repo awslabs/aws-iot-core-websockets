@@ -55,6 +55,12 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
     }
 
     @Override
+    public MqttClient getMqttClient(ImmutableClientId clientId, Region region) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+        // Use default values for region and endpoint address
+        return getMqttClient(clientId, Optional.of(region), ImmutableEndpointAddress.builder().build());
+    }
+
+    @Override
     public MqttClient getMqttClient(ImmutableClientId clientId, Optional<Region> optionalRegion, ImmutableEndpointAddress optionalEndpointAddress) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
         String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(optionalRegion, optionalEndpointAddress, ImmutableRoleToAssume.builder().build(), Optional.empty());
 
