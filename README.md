@@ -40,7 +40,7 @@ so you can ship temporary credentials to other systems over any secure delivery 
 
 ## How do I use it?
 
-Check out an [example in the IoT reference architectures repo](https://github.com/aws-samples/iot-reference-architectures/tree/master/mqtt-over-websockets-jitpack/java).
+Check out an [example in the IoT reference architectures repo](https://github.com/aws-samples/iot-reference-architectures/tree/master/mqtt-over-websockets-jitpack).
 
 ## Is there a really simple example snippet to get me started?
 
