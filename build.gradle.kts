@@ -60,7 +60,7 @@ dependencies {
     implementation("org.immutables:value:$immutablesValueVersion")
     implementation("org.immutables:gson:$immutablesValueVersion")
 
-    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$pahoVersion")
+    api("org.eclipse.paho:org.eclipse.paho.client.mqttv3:$pahoVersion")
     implementation("joda-time:joda-time:$jodaTimeVersion")
 
     implementation("software.amazon.awssdk:iot:$awsSdk2Version")
