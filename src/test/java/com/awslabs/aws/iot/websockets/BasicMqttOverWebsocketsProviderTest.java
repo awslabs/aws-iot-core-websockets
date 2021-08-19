@@ -4,6 +4,7 @@ import com.awslabs.aws.iot.websockets.data.*;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -17,7 +18,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -44,7 +44,7 @@ public class BasicMqttOverWebsocketsProviderTest {
         clientId = ImmutableClientId.builder().clientId(UUID.randomUUID().toString()).build();
 
         String goodClientIdArn = String.join("", "arn:aws:iot:", region.id(), ":", accountId, ":client/", clientId.getClientId());
-        String badClientIdArn = String.join("", goodClientIdArn, "1");
+        String badClientIdArn = String.join("", goodClientIdArn, "xxx");
         String publishAnywhereArn = String.join("", "arn:aws:iot:", region.id(), ":", accountId, ":topic/", "*");
 
         PolicyAction connectAction = new PolicyAction("iot:Connect");
@@ -68,26 +68,30 @@ public class BasicMqttOverWebsocketsProviderTest {
 
     @Test
     public void shouldGetAClientAndConnect() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException, MqttException {
-        MqttClient mqttClient = basicMqttOverWebsocketsProvider.getMqttClient(clientId);
+        MqttClientConfig mqttClientConfig = ImmutableMqttClientConfig.builder().clientId(clientId).build();
+        MqttClient mqttClient = basicMqttOverWebsocketsProvider.getMqttClient(mqttClientConfig);
         basicMqttOverWebsocketsProvider.connect(mqttClient);
     }
 
     @Test
     public void shouldGetAClientAndConnectWithScopeDownPolicy() throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, MqttException {
-        MqttClient mqttClient = basicMqttOverWebsocketsProvider.getMqttClient(clientId, Optional.empty(), emptyEndpoint, emptyRoleToAssume, goodConnectScopeDownPolicy);
+        MqttClientConfig mqttClientConfig = getMqttClientConfig(goodConnectScopeDownPolicy);
+        MqttClient mqttClient = basicMqttOverWebsocketsProvider.getMqttClient(mqttClientConfig);
         basicMqttOverWebsocketsProvider.connect(mqttClient);
     }
 
     @Test
     public void shouldGetAClientAndFailToConnectWithScopeDownPolicy() throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, MqttException {
-        MqttClient mqttClient = basicMqttOverWebsocketsProvider.getMqttClient(clientId, Optional.empty(), emptyEndpoint, emptyRoleToAssume, badConnectScopeDownPolicy);
+        MqttClientConfig mqttClientConfig = getMqttClientConfig(badConnectScopeDownPolicy);
+        MqttClient mqttClient = basicMqttOverWebsocketsProvider.getMqttClient(mqttClientConfig);
         MqttException mqttException = assertThrows(MqttException.class, () -> basicMqttOverWebsocketsProvider.connect(mqttClient));
         assertThat(mqttException.getCause().getMessage(), containsString("Already connected"));
     }
 
     @Test
     public void shouldPublishAMessageWithAPermissivePolicy() throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, MqttException {
-        MqttClient mqttClient = basicMqttOverWebsocketsProvider.getMqttClient(clientId, Optional.empty(), emptyEndpoint, emptyRoleToAssume, goodConnectAndPublishScopeDownPolicy);
+        MqttClientConfig mqttClientConfig = getMqttClientConfig(goodConnectAndPublishScopeDownPolicy);
+        MqttClient mqttClient = basicMqttOverWebsocketsProvider.getMqttClient(mqttClientConfig);
         basicMqttOverWebsocketsProvider.connect(mqttClient);
 
         String topic = "test";
@@ -97,12 +101,25 @@ public class BasicMqttOverWebsocketsProviderTest {
 
     @Test
     public void shouldNotPublishAMessageWithAConnectOnlyPolicy() throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, MqttException {
-        MqttClient mqttClient = basicMqttOverWebsocketsProvider.getMqttClient(clientId, Optional.empty(), emptyEndpoint, emptyRoleToAssume, goodConnectScopeDownPolicy);
+        MqttClientConfig mqttClientConfig = getMqttClientConfig(goodConnectScopeDownPolicy);
+        MqttClient mqttClient = basicMqttOverWebsocketsProvider.getMqttClient(mqttClientConfig);
         basicMqttOverWebsocketsProvider.connect(mqttClient);
 
         String topic = "test";
         MqttMessage mqttMessage = new MqttMessage("testing".getBytes());
         MqttException mqttException = assertThrows(MqttException.class, () -> mqttClient.publish(topic, mqttMessage));
         assertThat(mqttException.getCause(), is(instanceOf(EOFException.class)));
+    }
+
+    @NotNull
+    private MqttClientConfig getMqttClientConfig(ScopeDownPolicy scopeDownPolicy) {
+        MqttOverWebsocketsUriConfig mqttOverWebsocketsUriConfig = ImmutableMqttOverWebsocketsUriConfig.builder()
+                .optionalScopeDownPolicy(scopeDownPolicy)
+                .build();
+
+        return ImmutableMqttClientConfig.builder()
+                .clientId(clientId)
+                .optionalMqttOverWebsocketsUriConfig(mqttOverWebsocketsUriConfig)
+                .build();
     }
 }
