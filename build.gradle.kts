@@ -48,7 +48,7 @@ val pahoVersion = "1.2.5"
 
 val junitVersion = "4.13.2"
 val guavaVersion = "30.1.1-jre"
-val vavrVersion = "0.10.3"
+val vavrVersion = "0.10.4"
 
 group = "local"
 version = "1.0-SNAPSHOT"
