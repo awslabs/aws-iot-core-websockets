@@ -111,6 +111,20 @@ public class BasicMqttOverWebsocketsProviderTest {
         assertThat(mqttException.getCause(), is(instanceOf(EOFException.class)));
     }
 
+    @Test
+    public void shouldThrowAnExceptionWithTwoScopeDownPolicies() throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, MqttException {
+        MqttOverWebsocketsUriConfig mqttOverWebsocketsUriConfig = ImmutableMqttOverWebsocketsUriConfig.builder()
+                .optionalScopeDownPolicy(new ScopeDownPolicy("", null))
+                .optionalScopeDownPolicyJson("")
+                .build();
+        MqttClientConfig mqttClientConfig = ImmutableMqttClientConfig.builder()
+                .clientId(clientId)
+                .optionalMqttOverWebsocketsUriConfig(mqttOverWebsocketsUriConfig)
+                .build();
+        RuntimeException runtimeException = assertThrows(RuntimeException.class, () -> basicMqttOverWebsocketsProvider.getMqttClient(mqttClientConfig));
+        assertThat(runtimeException.getMessage(), containsString("but not both"));
+    }
+
     @NotNull
     private MqttClientConfig getMqttClientConfig(ScopeDownPolicy scopeDownPolicy) {
         MqttOverWebsocketsUriConfig mqttOverWebsocketsUriConfig = ImmutableMqttOverWebsocketsUriConfig.builder()

@@ -16,4 +16,6 @@ public abstract class MqttOverWebsocketsUriConfig extends NoToString {
     public abstract Optional<RoleToAssume> optionalRoleToAssume();
 
     public abstract Optional<ScopeDownPolicy> optionalScopeDownPolicy();
+
+    public abstract Optional<String> optionalScopeDownPolicyJson();
 }

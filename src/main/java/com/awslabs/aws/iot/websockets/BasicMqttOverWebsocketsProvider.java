@@ -116,6 +116,24 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
     // Derived from: http://docs.aws.amazon.com/iot/latest/developerguide/iot-dg.pdf
     @Override
     public String getMqttOverWebsocketsUri(Optional<MqttOverWebsocketsUriConfig> optionalMqttOverWebsocketsUriConfig) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+        Optional<String> optionalScopeDownJson = Optional.empty();
+
+        if (optionalMqttOverWebsocketsUriConfig.isPresent()) {
+            // We have a websockets config, have they've specified both the policy JSON and the policy object?
+            MqttOverWebsocketsUriConfig mqttOverWebsocketsUriConfig = optionalMqttOverWebsocketsUriConfig.get();
+            if (mqttOverWebsocketsUriConfig.optionalScopeDownPolicy().isPresent() &&
+                    mqttOverWebsocketsUriConfig.optionalScopeDownPolicyJson().isPresent()) {
+                throw new RuntimeException("Scope down policy object and scope down policy JSON can not be used simultaneously. Use either a scope down policy object or scope down policy JSON but not both.");
+            }
+
+            if (mqttOverWebsocketsUriConfig.optionalScopeDownPolicy().isPresent()) {
+                optionalScopeDownJson = mqttOverWebsocketsUriConfig.optionalScopeDownPolicy().map(ScopeDownPolicy::toString);
+            }
+            else if (mqttOverWebsocketsUriConfig.optionalScopeDownPolicyJson().isPresent()) {
+                optionalScopeDownJson = mqttOverWebsocketsUriConfig.optionalScopeDownPolicyJson();
+            }
+        }
+
         long time = System.currentTimeMillis();
         DateTime dateTime = new DateTime(time);
         String dateStamp = getDateStamp(dateTime);
@@ -133,9 +151,6 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         String awsAccessKeyId;
         String awsSecretAccessKey;
         Optional<String> optionalSessionToken = Optional.empty();
-        Optional<String> optionalScopeDownJson = optionalMqttOverWebsocketsUriConfig
-                .flatMap(MqttOverWebsocketsUriConfig::optionalScopeDownPolicy)
-                .map(ScopeDownPolicy::toString);
 
         Optional<String> optionalRoleToAssume = optionalMqttOverWebsocketsUriConfig
                 .flatMap(MqttOverWebsocketsUriConfig::optionalRoleToAssume)
