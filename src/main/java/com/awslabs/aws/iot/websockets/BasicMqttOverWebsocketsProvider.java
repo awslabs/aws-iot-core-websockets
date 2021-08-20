@@ -32,6 +32,8 @@ import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,6 +42,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
     private static final Logger log = LoggerFactory.getLogger(BasicMqttOverWebsocketsProvider.class);
 
     private static final ApacheHttpClient.Builder apacheClientBuilder = ApacheHttpClient.builder();
+    private static final Map<Optional<Region>, String> endpointMap = new HashMap<>();
 
     // This is not private so that a test can override it if necessary
     AwsCredentialsProvider credentialsProvider = DefaultCredentialsProvider.create();
@@ -128,8 +131,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
             if (mqttOverWebsocketsUriConfig.optionalScopeDownPolicy().isPresent()) {
                 optionalScopeDownJson = mqttOverWebsocketsUriConfig.optionalScopeDownPolicy().map(ScopeDownPolicy::toString);
-            }
-            else if (mqttOverWebsocketsUriConfig.optionalScopeDownPolicyJson().isPresent()) {
+            } else if (mqttOverWebsocketsUriConfig.optionalScopeDownPolicyJson().isPresent()) {
                 optionalScopeDownJson = mqttOverWebsocketsUriConfig.optionalScopeDownPolicyJson();
             }
         }
@@ -257,10 +259,16 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
     }
 
     private String getEndpointAddressForRegion(Optional<Region> optionalRegion) {
-        DescribeEndpointRequest describeEndpointRequest = DescribeEndpointRequest.builder()
-                .endpointType("iot:Data-ATS")
-                .build();
-        return getIotClient(optionalRegion).describeEndpoint(describeEndpointRequest).endpointAddress();
+        if (!endpointMap.containsKey(optionalRegion)) {
+            DescribeEndpointRequest describeEndpointRequest = DescribeEndpointRequest.builder()
+                    .endpointType("iot:Data-ATS")
+                    .build();
+            String endpointAddress = getIotClient(optionalRegion).describeEndpoint(describeEndpointRequest).endpointAddress();
+
+            endpointMap.put(optionalRegion, endpointAddress);
+        }
+
+        return endpointMap.get(optionalRegion);
     }
 
     private IotClient getIotClient(Optional<Region> optionalRegion) {
