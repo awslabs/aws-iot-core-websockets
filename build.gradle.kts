@@ -20,7 +20,7 @@ idea.module.isDownloadJavadoc = true
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 
-val gradleDependencyVersion = "7.1.1"
+val gradleDependencyVersion = "7.2"
 
 tasks.wrapper {
     gradleVersion = gradleDependencyVersion
@@ -72,7 +72,4 @@ dependencies {
     testImplementation("junit:junit:$junitVersion")
     testImplementation("com.google.guava:guava:$guavaVersion")
     testImplementation("io.vavr:vavr:$vavrVersion")
-
-    // To force dependabot to update the Gradle wrapper dependency
-    testImplementation("org.gradle:gradle-tooling-api:$gradleDependencyVersion")
 }
