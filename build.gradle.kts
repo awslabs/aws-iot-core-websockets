@@ -67,9 +67,10 @@ dependencies {
     implementation("software.amazon.awssdk:sts:$awsSdk2Version")
     implementation("software.amazon.awssdk:apache-client:$awsSdk2Version")
 
+    implementation("io.vavr:vavr:$vavrVersion")
+
     api("javax.inject:javax.inject:1")
 
     testImplementation("junit:junit:$junitVersion")
     testImplementation("com.google.guava:guava:$guavaVersion")
-    testImplementation("io.vavr:vavr:$vavrVersion")
 }

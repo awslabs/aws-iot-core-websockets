@@ -1,6 +1,7 @@
 package com.awslabs.aws.iot.websockets;
 
 import com.awslabs.aws.iot.websockets.data.*;
+import io.vavr.Function1;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -40,7 +41,7 @@ public class BasicMqttOverWebsocketsProviderTest {
         awsCredentialsProvider = DefaultCredentialsProvider.create();
         region = new DefaultAwsRegionProviderChain().getRegion();
         basicMqttOverWebsocketsProvider = new BasicMqttOverWebsocketsProvider();
-        String accountId = basicMqttOverWebsocketsProvider.getAccountId(StsClient.create());
+        String accountId = basicMqttOverWebsocketsProvider.getAccountId.apply(StsClient.create());
         clientId = ImmutableClientId.builder().clientId(UUID.randomUUID().toString()).build();
 
         String goodClientIdArn = String.join("", "arn:aws:iot:", region.id(), ":", accountId, ":client/", clientId.getClientId());

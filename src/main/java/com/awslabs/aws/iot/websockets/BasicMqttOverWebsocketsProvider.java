@@ -1,6 +1,7 @@
 package com.awslabs.aws.iot.websockets;
 
 import com.awslabs.aws.iot.websockets.data.*;
+import io.vavr.Function1;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.joda.time.DateTime;
@@ -195,7 +196,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
             if (!roleArn.startsWith(ARN_AWS_IAM)) {
                 // The role coming from the environment will be the full ARN, if this is just the role name add the proper prefix
-                String accountId = getAccountId(stsClient);
+                String accountId = getAccountId.apply(stsClient);
 
                 roleArn = ARN_AWS_IAM + accountId + ":role/" + roleArn;
             }
@@ -254,9 +255,9 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         return builder.build();
     }
 
-    public String getAccountId(StsClient stsClient) {
-        return stsClient.getCallerIdentity(GetCallerIdentityRequest.builder().build()).account();
-    }
+    public Function1<StsClient, String> getAccountId = Function1.<StsClient, String>of(
+            stsClient -> stsClient.getCallerIdentity(GetCallerIdentityRequest.builder().build()).account()
+    ).memoized();
 
     private String getEndpointAddressForRegion(Optional<Region> optionalRegion) {
         if (!endpointMap.containsKey(optionalRegion)) {
