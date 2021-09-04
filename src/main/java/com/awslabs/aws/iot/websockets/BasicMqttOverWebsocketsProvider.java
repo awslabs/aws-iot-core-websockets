@@ -159,7 +159,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
                 .flatMap(MqttOverWebsocketsUriConfig::optionalRoleToAssume)
                 .flatMap(RoleToAssume::getRoleToAssume);
 
-        StsClient stsClient = getStsClient(optionalRegion);
+        StsClient stsClient = getStsClient.apply(optionalRegion);
 
         if (!optionalRoleToAssume.isPresent()) {
             if (optionalScopeDownJson.isPresent()) {
@@ -247,13 +247,13 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         return requestUrl;
     }
 
-    private StsClient getStsClient(Optional<Region> optionalRegion) {
+    public Function1<Optional<Region>, StsClient> getStsClient = Function1.<Optional<Region>, StsClient>of(optionalRegion -> {
         StsClientBuilder builder = StsClient.builder()
                 .httpClientBuilder(apacheClientBuilder);
         optionalRegion.ifPresent(builder::region);
 
         return builder.build();
-    }
+    }).memoized();
 
     public Function1<StsClient, String> getAccountId = Function1.<StsClient, String>of(
             stsClient -> stsClient.getCallerIdentity(GetCallerIdentityRequest.builder().build()).account()
