@@ -47,7 +47,7 @@ val immutablesValueVersion = "2.8.9-ea-1"
 val pahoVersion = "1.2.5"
 
 val junitVersion = "4.13.2"
-val guavaVersion = "30.1.1-jre"
+val guavaVersion = "31.0.1-jre"
 val vavrVersion = "0.10.4"
 
 group = "local"
