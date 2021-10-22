@@ -54,5 +54,5 @@ public interface MqttOverWebsocketsProvider {
     Optional<IMqttToken> connect(MqttAsyncClient mqttAsyncClient, ImmutableUsernamePassword usernamePassword, Object userContext, IMqttActionListener callback) throws MqttException;
 
     // Derived from: http://docs.aws.amazon.com/iot/latest/developerguide/iot-dg.pdf
-    String getMqttOverWebsocketsUri(Optional<MqttOverWebsocketsUriConfig> optionalMqttOverWebsocketsUriConfig) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
+    String getMqttOverWebsocketsUriString(Optional<MqttOverWebsocketsUriConfig> optionalMqttOverWebsocketsUriConfig) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException;
 }

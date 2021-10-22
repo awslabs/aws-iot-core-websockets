@@ -2,8 +2,11 @@ package com.awslabs.aws.iot.websockets;
 
 import com.awslabs.aws.iot.websockets.data.*;
 import io.vavr.Function1;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -30,6 +33,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -44,6 +48,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
     private static final ApacheHttpClient.Builder apacheClientBuilder = ApacheHttpClient.builder();
     private static final Map<Optional<Region>, String> endpointMap = new HashMap<>();
+    public static final String X_AMZ_SIGNED_HEADERS = "X-Amz-SignedHeaders";
 
     // This is not private so that a test can override it if necessary
     AwsCredentialsProvider credentialsProvider = DefaultCredentialsProvider.create();
@@ -54,7 +59,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
     @Override
     public MqttClient getMqttClient(MqttClientConfig mqttClientConfig) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
-        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(mqttClientConfig.getOptionalMqttOverWebsocketsUriConfig());
+        String mqttOverWebsocketsUri = getMqttOverWebsocketsUriString(mqttClientConfig.getOptionalMqttOverWebsocketsUriConfig());
 
         MemoryPersistence persistence = new MemoryPersistence();
 
@@ -63,7 +68,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
     @Override
     public MqttAsyncClient getMqttAsyncClient(MqttClientConfig mqttClientConfig) throws MqttException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
-        String mqttOverWebsocketsUri = getMqttOverWebsocketsUri(mqttClientConfig.getOptionalMqttOverWebsocketsUriConfig());
+        String mqttOverWebsocketsUri = getMqttOverWebsocketsUriString(mqttClientConfig.getOptionalMqttOverWebsocketsUriConfig());
 
         MemoryPersistence persistence = new MemoryPersistence();
 
@@ -119,7 +124,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
 
     // Derived from: http://docs.aws.amazon.com/iot/latest/developerguide/iot-dg.pdf
     @Override
-    public String getMqttOverWebsocketsUri(Optional<MqttOverWebsocketsUriConfig> optionalMqttOverWebsocketsUriConfig) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+    public String getMqttOverWebsocketsUriString(Optional<MqttOverWebsocketsUriConfig> optionalMqttOverWebsocketsUriConfig) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
         Optional<String> optionalScopeDownJson = Optional.empty();
 
         if (optionalMqttOverWebsocketsUriConfig.isPresent()) {
@@ -224,27 +229,45 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         String canonicalUri = "/mqtt";
 
         String credentialScope = dateStamp + "/" + regionString + "/" + service + "/" + "aws4_request";
-        String canonicalQuerystring = "X-Amz-Algorithm=AWS4-HMAC-SHA256";
-        canonicalQuerystring += "&X-Amz-Credential=" + URLEncoder.encode(awsAccessKeyId + "/" + credentialScope, "UTF-8");
-        canonicalQuerystring += "&X-Amz-Date=" + amzdate;
-        canonicalQuerystring += "&X-Amz-SignedHeaders=host";
+
+        Tuple2<String, String> xAmzAlgorithm = Tuple.of("X-Amz-Algorithm", "AWS4-HMAC-SHA256");
+        Tuple2<String, String> xAmzCredential = Tuple.of("X-Amz-Credential", URLEncoder.encode(awsAccessKeyId + "/" + credentialScope, StandardCharsets.UTF_8));
+        Tuple2<String, String> xAmzDate = Tuple.of("X-Amz-Date", amzdate);
+        Tuple2<String, String> xAmzSignedHeaders = Tuple.of(X_AMZ_SIGNED_HEADERS, "host");
+
+        String canonicalQueryString = String.join("&",
+                xAmzAlgorithm.apply(this::tupleToParameter),
+                xAmzCredential.apply(this::tupleToParameter),
+                xAmzDate.apply(this::tupleToParameter),
+                xAmzSignedHeaders.apply(this::tupleToParameter));
 
         String canonicalHeaders = "host:" + clientEndpoint + ":443\n";
         String payloadHash = sha256("");
-        String canonicalRequest = method + "\n" + canonicalUri + "\n" + canonicalQuerystring + "\n" + canonicalHeaders + "\nhost\n" + payloadHash;
+        String canonicalRequest = method + "\n" + canonicalUri + "\n" + canonicalQueryString + "\n" + canonicalHeaders + "\nhost\n" + payloadHash;
 
         String stringToSign = algorithm + "\n" + amzdate + "\n" + credentialScope + "\n" + sha256(canonicalRequest);
         byte[] signingKey = getSignatureKey(awsSecretAccessKey, dateStamp, regionString, service);
         String signature = sign(signingKey, stringToSign);
 
-        canonicalQuerystring += "&X-Amz-Signature=" + signature;
-        String requestUrl = "wss://" + clientEndpoint + canonicalUri + "?" + canonicalQuerystring;
+        Tuple2<String, String> xAmzSignature = Tuple.of("X-Amz-Signature", signature);
+
+        canonicalQueryString = String.join("&", canonicalQueryString,
+                xAmzSignature.apply(this::tupleToParameter));
 
         if (optionalSessionToken.isPresent()) {
-            requestUrl += "&X-Amz-Security-Token=" + URLEncoder.encode(optionalSessionToken.get(), "UTF-8");
+            Tuple2<String, String> xAmzSecurityToken = Tuple.of("X-Amz-Security-Token", URLEncoder.encode(optionalSessionToken.get(), StandardCharsets.UTF_8));
+
+            canonicalQueryString = String.join("&",
+                    canonicalQueryString,
+                    xAmzSecurityToken.apply(this::tupleToParameter));
         }
 
-        return requestUrl;
+        return "wss://" + clientEndpoint + canonicalUri + "?" + canonicalQueryString;
+    }
+
+    @NotNull
+    private String tupleToParameter(String a, String b) {
+        return String.join("=", a, b);
     }
 
     public Function1<Optional<Region>, StsClient> getStsClient = Function1.<Optional<Region>, StsClient>of(optionalRegion -> {
