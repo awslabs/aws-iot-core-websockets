@@ -2,6 +2,7 @@ package com.awslabs.aws.iot.websockets;
 
 import com.awslabs.aws.iot.websockets.data.*;
 import io.vavr.Function1;
+import io.vavr.Function2;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import org.eclipse.paho.client.mqttv3.*;
@@ -13,10 +14,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.awssdk.auth.credentials.AwsCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.*;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.regions.providers.AwsRegionProviderChain;
@@ -148,6 +146,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         String amzdate = getAmzDate(dateTime);
         String service = "iotdata";
         Optional<Region> optionalRegion = optionalMqttOverWebsocketsUriConfig.flatMap(MqttOverWebsocketsUriConfig::optionalRegion);
+        Optional<AwsCredentialsProviderChain> optionalAwsCredentialsProviderChain = optionalMqttOverWebsocketsUriConfig.flatMap(MqttOverWebsocketsUriConfig::optionalAwsCredentialsProviderChain);
         Region region = optionalRegion.orElseGet(this::getDefaultRegionString);
         String regionString = region.toString();
         String clientEndpoint = optionalMqttOverWebsocketsUriConfig
@@ -164,7 +163,7 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
                 .flatMap(MqttOverWebsocketsUriConfig::optionalRoleToAssume)
                 .flatMap(RoleToAssume::getRoleToAssume);
 
-        StsClient stsClient = getStsClient.apply(optionalRegion);
+        StsClient stsClient = getStsClient.apply(optionalAwsCredentialsProviderChain, optionalRegion);
 
         if (!optionalRoleToAssume.isPresent()) {
             if (optionalScopeDownJson.isPresent()) {
@@ -270,10 +269,11 @@ public class BasicMqttOverWebsocketsProvider implements MqttOverWebsocketsProvid
         return String.join("=", a, b);
     }
 
-    public Function1<Optional<Region>, StsClient> getStsClient = Function1.<Optional<Region>, StsClient>of(optionalRegion -> {
+    public Function2<Optional<AwsCredentialsProviderChain>, Optional<Region>, StsClient> getStsClient = Function2.<Optional<AwsCredentialsProviderChain>, Optional<Region>, StsClient>of((optionalAwsCredentialsProviderChain, optionalRegion) -> {
         StsClientBuilder builder = StsClient.builder()
                 .httpClientBuilder(apacheClientBuilder);
         optionalRegion.ifPresent(builder::region);
+        optionalAwsCredentialsProviderChain.ifPresent(builder::credentialsProvider);
 
         return builder.build();
     }).memoized();

@@ -2,6 +2,7 @@ package com.awslabs.aws.iot.websockets.data;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
 import software.amazon.awssdk.regions.Region;
 
 import java.util.Optional;
@@ -9,6 +10,8 @@ import java.util.Optional;
 @Gson.TypeAdapters
 @Value.Immutable
 public abstract class MqttOverWebsocketsUriConfig extends NoToString {
+    public abstract Optional<AwsCredentialsProviderChain> optionalAwsCredentialsProviderChain();
+
     public abstract Optional<Region> optionalRegion();
 
     public abstract Optional<EndpointAddress> optionalEndpointAddress();
