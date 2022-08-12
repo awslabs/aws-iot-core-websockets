@@ -40,7 +40,7 @@ java {
 
 // Specify all of our dependency versions
 val awsSdk2Version = "2.17.30"
-val jodaTimeVersion = "2.10.10"
+val jodaTimeVersion = "2.11.0"
 val immutablesValueVersion = "2.8.9-ea-1"
 
 // NOTE: Do not use 1.2.3 or you will get null pointer exceptions
