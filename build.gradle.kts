@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.5.30"
+    kotlin("jvm") version "1.9.0"
     id("java")
     id("java-library")
     id("application")
